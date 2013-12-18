@@ -1445,14 +1445,17 @@ def get_answers_distribution(request, course_id):
     """
     course = get_course_with_access(request.user, course_id, 'staff')
 
-    dist = grades.answer_distributions(request, course)
+    dist = grades.answer_distributions(request, course.id)
 
     d = {}
     d['header'] = ['url_name', 'display name', 'answer id', 'answer', 'count']
 
-    d['data'] = [[url_name, display_name, answer_id, a, answers[a]]
-                 for (url_name, display_name, answer_id), answers in dist.items()
-                 for a in answers]
+    d['data'] = [
+        # Everything is a unicode string except answers[a], which is the freq. count (integer)
+        [s.encode('utf-8') for s in (url_name, display_name, answer_id, a)] + [str(answers[a])]
+        for (url_name, display_name, answer_id), answers in dist.items()
+        for a in answers
+    ]
     return d
 
 

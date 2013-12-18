@@ -57,6 +57,19 @@ class StudentModule(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     modified = models.DateTimeField(auto_now=True, db_index=True)
 
+    @classmethod
+    def all_submitted_problems_for(cls, course_id):
+        """
+        Return all model instances that correspond to problems that have been
+        submitted for a given course. So module_type='problem' and a non-null
+        grade.
+        """
+        return cls.objects.filter(
+            course_id=course_id,
+            module_type='problem',
+            grade__isnull=False
+        )
+
     def __repr__(self):
         return 'StudentModule<%r>' % ({
             'course_id': self.course_id,
