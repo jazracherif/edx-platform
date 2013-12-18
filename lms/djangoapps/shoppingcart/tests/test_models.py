@@ -17,7 +17,8 @@ from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from xmodule.modulestore.tests.factories import CourseFactory
 from courseware.tests.tests import TEST_DATA_MONGO_MODULESTORE
 from shoppingcart.models import (Order, OrderItem, CertificateItem, InvalidCartItem, PaidCourseRegistration,
-                                 OrderItemSubclassPK, PaidCourseRegistrationAnnotation, Report)
+                                 OrderItemSubclassPK, PaidCourseRegistrationAnnotation)
+from shoppingcart.reports import Report, ItemizedPurchaseReport, CertificateStatusReport, UniversityRevenueShareReport, RefundReport
 from student.tests.factories import UserFactory
 from student.models import CourseEnrollment
 from course_modes.models import CourseMode
@@ -356,12 +357,12 @@ class ItemizedPurchaseReportTest(ModuleStoreTestCase):
 
     def test_purchased_items_btw_dates(self):
         report_type = "itemized_purchase_report"
-        report = Report.initialize_report(report_type)
-        purchases = report.get_query(self.now - self.FIVE_MINS, self.now + self.FIVE_MINS)
+        report = ItemizedPurchaseReport()
+        purchases = report.get_report_data(self.now - self.FIVE_MINS, self.now + self.FIVE_MINS)
         self.assertEqual(len(purchases), 2)
         self.assertIn(self.reg.orderitem_ptr, purchases)
         self.assertIn(self.cert_item.orderitem_ptr, purchases)
-        no_purchases = report.get_query(self.now + self.FIVE_MINS, self.now + self.FIVE_MINS + self.FIVE_MINS)
+        no_purchases = report.get_report_data(self.now + self.FIVE_MINS, self.now + self.FIVE_MINS + self.FIVE_MINS)
         self.assertFalse(no_purchases)
 
     test_time = datetime.datetime.now(pytz.UTC)
@@ -377,13 +378,13 @@ class ItemizedPurchaseReportTest(ModuleStoreTestCase):
         Tests that a generated purchase report CSV is as we expect
         """
         report_type = "itemized_purchase_report"
-        report = Report.initialize_report(report_type)
-        for item in report.get_query(self.now - self.FIVE_MINS, self.now + self.FIVE_MINS):
+        report = ItemizedPurchaseReport()
+        for item in report.get_report_data(self.now - self.FIVE_MINS, self.now + self.FIVE_MINS):
             item.fulfilled_time = self.test_time
             item.save()
 
         csv_file = StringIO.StringIO()
-        Report.make_report(report_type, csv_file, self.now - self.FIVE_MINS, self.now + self.FIVE_MINS)
+        report.make_report(report_type, csv_file, self.now - self.FIVE_MINS, self.now + self.FIVE_MINS)
         csv = csv_file.getvalue()
         csv_file.close()
         # Using excel mode csv, which automatically ends lines with \r\n, so need to convert to \n
@@ -519,10 +520,10 @@ class ReportTypeTests(ModuleStoreTestCase):
             MITx,999 Robot Super Course,0,80.00,0.00,2,80.00
             """.format(time_str=str(self.test_time)))
 
-    def test_refund_report_get_query(self):
+    def test_refund_report_get_report_data(self):
         report_type = "refund_report"
-        report = Report.initialize_report(report_type)
-        refunded_certs = report.get_query(self.now - self.FIVE_MINS, self.now + self.FIVE_MINS)
+        report = RefundReport()
+        refunded_certs = report.get_report_data(self.now - self.FIVE_MINS, self.now + self.FIVE_MINS)
         self.assertEqual(len(refunded_certs), 2)
         self.assertTrue(CertificateItem.objects.get(user=self.user7, course_id=self.course_id))
         self.assertTrue(CertificateItem.objects.get(user=self.user8, course_id=self.course_id))
@@ -532,14 +533,14 @@ class ReportTypeTests(ModuleStoreTestCase):
         Tests that a generated purchase report CSV is as we expect
         """
         report_type = "refund_report"
-        report = Report.initialize_report(report_type)
-        for item in report.get_query(self.now - self.FIVE_MINS, self.now + self.FIVE_MINS):
+        report = RefundReport()
+        for item in report.get_report_data(self.now - self.FIVE_MINS, self.now + self.FIVE_MINS):
             item.fulfilled_time = self.test_time
             item.refund_requested_time = self.test_time  # hm do we want to make these different
             item.save()
 
         csv_file = StringIO.StringIO()
-        Report.make_report(report_type, csv_file, self.now - self.FIVE_MINS, self.now + self.FIVE_MINS)
+        report.make_report(report_type, csv_file, self.now - self.FIVE_MINS, self.now + self.FIVE_MINS)
         csv = csv_file.getvalue()
         csv_file.close()
         # Using excel mode csv, which automatically ends lines with \r\n, so need to convert to \n
@@ -547,7 +548,7 @@ class ReportTypeTests(ModuleStoreTestCase):
 
     def test_basic_cert_status_csv(self):
         report_type = "certificate_status"
-        report = Report.initialize_report(report_type)
+        report = CertificateStatusReport()
         csv_file = StringIO.StringIO()
         report.make_report(report_type, csv_file, self.now - self.FIVE_MINS, self.now + self.FIVE_MINS)
         csv = csv_file.getvalue()
@@ -555,7 +556,7 @@ class ReportTypeTests(ModuleStoreTestCase):
 
     def test_basic_uni_revenue_share_csv(self):
         report_type = "university_revenue_share"
-        report = Report.initialize_report(report_type)
+        report = UniversityRevenueShareReport()
         csv_file = StringIO.StringIO()
         report.make_report(report_type, csv_file, self.now - self.FIVE_MINS, self.now + self.FIVE_MINS)
         csv = csv_file.getvalue()

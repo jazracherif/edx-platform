@@ -14,13 +14,14 @@ from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from xmodule.modulestore.tests.factories import CourseFactory
 from courseware.tests.tests import TEST_DATA_MONGO_MODULESTORE
 from shoppingcart.views import _can_download_report, _get_date_from_str
-from shoppingcart.models import Order, CertificateItem, PaidCourseRegistration, Report
+from shoppingcart.models import Order, CertificateItem, PaidCourseRegistration
 from student.tests.factories import UserFactory
 from student.models import CourseEnrollment
 from course_modes.models import CourseMode
 from edxmako.shortcuts import render_to_response
 from shoppingcart.processors import render_purchase_form_html
 from mock import patch, Mock, sentinel
+from shoppingcart.reports import ItemizedPurchaseReport
 
 
 def mock_render_purchase_form_html(*args, **kwargs):
@@ -396,7 +397,7 @@ class CSVReportViewsTest(ModuleStoreTestCase):
                                                                     'end_date': '2100-01-01',
                                                                     'requested_report': report_type})
         self.assertEqual(response['Content-Type'], 'text/csv')
-        report = Report.initialize_report(report_type)
+        report = ItemizedPurchaseReport()
         self.assertIn(",".join(report.csv_report_header_row()), response.content)
         self.assertIn(self.CORRECT_CSV_NO_DATE_ITEMIZED_PURCHASE, response.content)
 
