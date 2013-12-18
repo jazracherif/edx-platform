@@ -222,12 +222,12 @@
 
 // used by the unit status: adjust the status icon appearance
 .unit-status-section-icon-adjustment {
-  display: inline-block;
+  // how to fix the positioning problem via style settings here?
 }
 
 // used by the unit status: show the 'private' icon in a specific color
 .unit-status-all-private {
-  color: #ff683c;
+  color: rgba(0, 0, 0, 0.56);
 }
 
 // used by the unit status: show the 'public' icon in a specific color
@@ -237,5 +237,5 @@
 
 // used by the unit status: show the 'mixed' icon in a specific color
 .unit-status-mixed-state {
-  color: #eaf515;
+  color: rgba(0, 0, 0, 0.56);;
 }

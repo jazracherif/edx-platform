@@ -95,7 +95,8 @@ def get_course_location_for_item(location):
             raise Exception('Could not find course at {0}'.format(course_search_location))
 
         if found_cnt > 1:
-            raise Exception('Found more than one course at {0}. There should only be one!!! Dump = {1}'.format(course_search_location, courses))
+            raise Exception('Found more than one course at {0}. There should only be one!!! Dump = {1}'.format(
+                course_search_location, courses))
 
         location = courses[0].location
 
@@ -123,7 +124,9 @@ def get_course_for_item(location):
         raise BaseException('Could not find course at {0}'.format(course_search_location))
 
     if found_cnt > 1:
-        raise BaseException('Found more than one course at {0}. There should only be one!!! Dump = {1}'.format(course_search_location, courses))
+        raise BaseException(
+            'Found more than one course at {0}. There should only be one!!! Dump = {1}'.format(course_search_location,
+                                                                                               courses))
 
     return courses[0]
 
@@ -276,7 +279,7 @@ def remove_extra_panel_tab(tab_type, course):
     return changed, course_tabs
 
 
-def get_unit_state_icon_name( unit ):
+def get_unit_state_icon_name(unit):
     """
     Check the supplied unit's public/private/draft state, returning
     a string describing the icon style for the unit
@@ -292,7 +295,8 @@ def get_unit_state_icon_name( unit ):
 
     return return_string
 
-def get_subsection_state( subsection ):
+
+def get_subsection_state(subsection):
     """
     Check all the units belonging to the supplied subsection, returning
     a string describing the style for the SUBSECTION icon to show
@@ -306,14 +310,14 @@ def get_subsection_state( subsection ):
     unit_count = 0
 
     for unit in subsection.get_children():
-        if unit_stateById[ unit.location.name ] == "public":
+        if unit_stateById[unit.location.name] == "public":
             unit_public_count += 1
         unit_count += 1
 
     if unit_count == 0:
         return_string = NO_UNITS_ICON_STRING
     else:
-        if unit_count == unit_public_count :
+        if unit_count == unit_public_count:
             return_string = ALL_PUBLIC_ICON_STRING
 
         if unit_public_count == 0:
@@ -321,37 +325,48 @@ def get_subsection_state( subsection ):
 
     return return_string
 
-def catalog_unit_states( section ):
+
+def catalog_unit_states(section, count):
     """
     Check all the units belonging to all subsections, returning
-    a string describing the style for the icon to show
+    a string describing the style for the icon to show and also
+    recording the number of units to be affected *if* the user
+    decides to change units' status
     """
     return_string = MIXED_STATE_ICON_STRING
-    foundPrivate = 0                            # counts the number of private units
+    found_private = 0                           # counts the number of private units
     found_public = 0                            # counts the number of public units
     found_units = 0                             # counts the total number of units
+    affected_units_count = 0                    # counts the number of units affected if the user changes unit's status
+    count = 69
+
     for child in section.get_children():
-      found_private_subsection = 0              # counts the number of private units in this subsection
-      found_public_subsection = 0               # counts the number of public units in this subsection
-      found_units_subsection = 0                # counts the total number of units in this subsection
-      for unit in child.get_children():
-        found_units_subsection += 1
-        found_units += 1
-        state = compute_unit_state(unit)
-        unit_stateById[ unit.location.name ] = state
+        _subsection = 0                         # counts the number of private units in this subsection
+        found_public_subsection = 0             # counts the number of public units in this subsection
+        found_units_subsection = 0              # counts the total number of units in this subsection
+        for unit in child.get_children():
+            found_units_subsection += 1
+            found_units += 1
+            state = compute_unit_state(unit)
+            unit_stateById[unit.location.name] = state
 
-        if state == "public":
-            found_public += 1
-            found_public_subsection += 1
+            if state == "public":
+                found_public += 1
+                found_public_subsection += 1
 
-        if (state == "private") or (state == "draft"):
-            foundPrivate += 1
-            found_private_subsection += 1
+            if (state == "private") or (state == "draft"):
+                found_private += 1
+                _subsection += 1
 
     if found_public == found_units:
+        affected_units_count = found_public       # record the number of (public) units to be affected
         return_string = ALL_PUBLIC_ICON_STRING
 
     if found_public == 0:
+        affected_units_count = found_units        # record the number of (private) units to be affected
         return_string = ALL_PRIVATE_ICON_STRING
+
+    if found_public != found_units:
+        affected_units_count = found_units - found_public  # record the number of (private, mixed) units to be affected
 
     return return_string + " unit-status-section-icon-adjustment"

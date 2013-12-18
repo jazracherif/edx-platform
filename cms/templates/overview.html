@@ -140,7 +140,7 @@ require(["domReady!", "jquery", "js/models/location", "js/models/section", "js/v
   <div class="main-wrapper">
     <div class="inner-wrapper">
 
-      <div class="wrapper-dnd">
+      <div  id="bozo"  class="wrapper-dnd">
         <%
           course_locator = loc_mapper().translate_location(
             context_course.location.course_id, context_course.location, False, True
@@ -149,9 +149,15 @@ require(["domReady!", "jquery", "js/models/location", "js/models/section", "js/v
         <article class="courseware-overview" data-locator="${course_locator}">
           % for section in sections:
           <%
+            trbm_count = 4
             section_locator = loc_mapper().translate_location(
               context_course.location.course_id, section.location, False, True
             )
+
+
+
+
+
           %>
           <section class="courseware-section branch is-draggable" data-parent="${course_locator}"
                    data-locator="${section_locator}">
@@ -192,8 +198,11 @@ require(["domReady!", "jquery", "js/models/location", "js/models/section", "js/v
                 </a>
 
                 <a href="#" data-tooltip="${_('Bulk change unit status')} TRBM_bulk-change-units-section-button"  >
-                  <% print("\n\n——--- ZORK ------\n\n"); %>
                     <i class="${catalog_unit_states(section)} "  >
+
+
+
+
                         <div style="position: absolute;
                                     text-align:center;
                                     font-size: 12px;
@@ -207,13 +216,32 @@ require(["domReady!", "jquery", "js/models/location", "js/models/section", "js/v
                                     right: 0;
                                     margin-top: 8;
                                     background-color: #ddddbb;">
-                            <div style="margin-top: 18; text-align: center">
+                            <div id="dino" style="margin-top: 18; text-align: center">
                                 You are about to change the status of X units
                             </div>
 
-                            <input style="vertical-align: bottom"   type="button"       value="All Public" />
+                            <input id="cmdAllPublic" style="vertical-align: bottom"   type="button"       value="All Public" />
                             <input type="button" value="All Private" />
                             <input type="button" value="Cancel" />
+
+
+
+
+
+                                        <script>
+                                            bonzo = document.getElementById('cmdAllPublic');
+                                            myId = bonzo.id;
+                                            document.write("\n\n Button value: " + bonzo.value);
+                                            eight = 8;
+                                        </script>
+
+
+
+
+
+
+
+
 
                         </div>
                     </i>

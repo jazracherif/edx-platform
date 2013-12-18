@@ -38,8 +38,12 @@ def coffee_cmd(watch=false, debug=false)
 end
 
 def sass_cmd(watch=false, debug=false)
-    sass_load_paths = ["./common/static/sass"]
+    sass_load_paths = ["./common/static/sass", "./lms/static/sass", "./cms/static/sass/views", "./cms/static/sass"]
     sass_watch_paths = ["*/static"]
+ #   sass_watch_paths = sass_load_paths
+
+
+
     if USE_CUSTOM_THEME
       sass_load_paths << THEME_SASS
       sass_watch_paths << THEME_SASS
@@ -47,7 +51,9 @@ def sass_cmd(watch=false, debug=false)
 
     "sass #{debug ? '' : '--style compressed'} " +
           "--load-path #{sass_load_paths.join(' ')} " +
-          "#{watch ? '--watch' : '--update'} -E utf-8 #{sass_watch_paths.join(' ')}"
+          "--debug-info  " +
+          "-E utf-8 " +
+          "#{watch ? '--watch' : '--update'} #{sass_watch_paths.join(' ')}"
 end
 
 # This task takes arguments purely to pass them via dependencies to the preprocess task
