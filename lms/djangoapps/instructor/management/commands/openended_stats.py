@@ -1,7 +1,7 @@
 from xmodule.open_ended_grading_classes.openendedchild import OpenEndedChild
 from courseware.models import StudentModule
 from student.models import anonymous_id_for_user
-from ...utils import get_descriptor, get_module_for_student, get_enrolled_students, create_csv_from_student_anonymous_ids
+from ...utils import get_descriptor, get_module_for_student, get_enrolled_students, create_csv_from_student_anonymous_ids, create_json_of_student_data
 from django.core.management.base import BaseCommand
 
 
@@ -80,6 +80,14 @@ class Command(BaseCommand):
         #Create a csv of student anonymous ids.
         create_csv_from_student_anonymous_ids([anonymous_id_for_user(student, course_id) for student in students_with_saved_answers], "students_with_saved_answers")
         create_csv_from_student_anonymous_ids([anonymous_id_for_user(student, course_id) for student in students_with_submissions], "students_with_submissions")
+
+        student_assessing_dict = dict()
+        student_assessing_dict["students_with_submissions"] = [{"student_id": student.id,
+                                                                "username": student.username,
+                                                                "anonymous_id": anonymous_id_for_user(student, course_id)
+                                                               } for student in students_with_submissions]
+        #Create a json of student data.
+        create_json_of_student_data(student_assessing_dict, 'students_with_submissions')
 
         print "Errors for {0} students.".format(len(students_with_invalid_state))
         print "----------------------------------"

@@ -3,6 +3,7 @@ from courseware.model_data import FieldDataCache
 from courseware.module_render import get_module_for_descriptor
 from courseware.courses import get_course_by_id
 import csv
+import json
 from django.contrib.auth.models import User
 
 
@@ -113,6 +114,13 @@ def create_csv_from_student_anonymous_ids(student_anonymous_ids, filename):
     with open('{0}.csv'.format(filename), 'wb') as csv_file:
         csv_reader = csv.writer(csv_file)
         csv_reader.writerows([[sid] for sid in student_anonymous_ids])
+
+
+def create_json_of_student_data(student_data_dict, filename):
+    """Write a json from student data."""
+
+    with open('{0}.json'.format(filename), 'wb') as json_file:
+        json_file.write(json.dumps(student_data_dict))
 
 
 class DummyRequest(object):
