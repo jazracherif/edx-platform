@@ -85,6 +85,12 @@
           border-radius: 3px;
           color: $white;
         }
+
+        &.disabled {
+          background-color: transparent;
+          color: $gray-l2;
+          pointer-events: none;
+        }
       }
 
       .nav-label {
