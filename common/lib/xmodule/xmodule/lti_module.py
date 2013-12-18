@@ -83,12 +83,19 @@ class LTIFields(object):
 
     https://github.com/idan/oauthlib/blob/master/oauthlib/oauth1/rfc5849/signature.py#L136
     """
+    display_name = String(display_name="Display Name", help="Display name for this module", scope=Scope.settings, default="LTI")
     lti_id = String(help="Id of the tool", default='', scope=Scope.settings)
     launch_url = String(help="URL of the tool", default='http://www.example.com', scope=Scope.settings)
     custom_parameters = List(help="Custom parameters (vbid, book_location, etc..)", scope=Scope.settings)
     open_in_a_new_page = Boolean(help="Should LTI be opened in new page?", default=True, scope=Scope.settings)
     graded = Boolean(help="Grades will be considered in overall score.", default=False, scope=Scope.settings)
-    weight = Float(help="Weight for student grades.", default=1.0, scope=Scope.settings)
+    weight = Float(
+        help="Weight for student grades.",
+        default=1.0,
+        scope=Scope.settings,
+        values={"min": 0},
+    )
+    has_score = Boolean(help="Does this LTI module have score?", default=False, scope=Scope.settings)
 
 
 class LTIModule(LTIFields, XModule):
@@ -375,7 +382,7 @@ oauth_consumer_key="", oauth_signature="frVp4JuvT1mVXlxktiAUjQ7%2F1cw%3D"'}
         return params
 
     def max_score(self):
-        return self.weight
+        return self.weight if self.has_score else None
 
 
     @XBlock.handler
@@ -581,6 +588,5 @@ class LTIDescriptor(LTIFields, MetadataOnlyEditingDescriptor, EmptyDataRawDescri
     """
     Descriptor for LTI Xmodule.
     """
-    has_score = True
     module_class = LTIModule
     grade_handler = module_attr('grade_handler')

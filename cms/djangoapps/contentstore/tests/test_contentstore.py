@@ -137,8 +137,7 @@ class ContentStoreToyCourseTest(ModuleStoreTestCase):
         locator = loc_mapper().translate_location(course.location.course_id, descriptor.location, False, True)
         resp = self.client.get_html(locator.url_reverse('unit'))
         self.assertEqual(resp.status_code, 200)
-        # TODO: uncomment when video transcripts no longer require IDs.
-        # _test_no_locations(self, resp)
+        _test_no_locations(self, resp)
 
         for expected in expected_types:
             self.assertIn(expected, resp.content)
@@ -1354,8 +1353,7 @@ class ContentStoreToyCourseTest(ModuleStoreTestCase):
             unit_locator = loc_mapper().translate_location(course_id, descriptor.location, False, True)
             resp = self.client.get_html(unit_locator.url_reverse('unit'))
             self.assertEqual(resp.status_code, 200)
-            # TODO: uncomment when video transcripts no longer require IDs.
-            # _test_no_locations(self, resp)
+            _test_no_locations(self, resp)
 
 
 @override_settings(CONTENTSTORE=TEST_DATA_CONTENTSTORE, MODULESTORE=TEST_MODULESTORE)
@@ -1506,31 +1504,31 @@ class ContentStoreTest(ModuleStoreTestCase):
 
     def test_create_course_with_course_creation_disabled_staff(self):
         """Test new course creation -- course creation disabled, but staff access."""
-        with mock.patch.dict('django.conf.settings.MITX_FEATURES', {'DISABLE_COURSE_CREATION': True}):
+        with mock.patch.dict('django.conf.settings.FEATURES', {'DISABLE_COURSE_CREATION': True}):
             self.assert_created_course()
 
     def test_create_course_with_course_creation_disabled_not_staff(self):
         """Test new course creation -- error path for course creation disabled, not staff access."""
-        with mock.patch.dict('django.conf.settings.MITX_FEATURES', {'DISABLE_COURSE_CREATION': True}):
+        with mock.patch.dict('django.conf.settings.FEATURES', {'DISABLE_COURSE_CREATION': True}):
             self.user.is_staff = False
             self.user.save()
             self.assert_course_permission_denied()
 
     def test_create_course_no_course_creators_staff(self):
         """Test new course creation -- course creation group enabled, staff, group is empty."""
-        with mock.patch.dict('django.conf.settings.MITX_FEATURES', {'ENABLE_CREATOR_GROUP': True}):
+        with mock.patch.dict('django.conf.settings.FEATURES', {'ENABLE_CREATOR_GROUP': True}):
             self.assert_created_course()
 
     def test_create_course_no_course_creators_not_staff(self):
         """Test new course creation -- error path for course creator group enabled, not staff, group is empty."""
-        with mock.patch.dict('django.conf.settings.MITX_FEATURES', {"ENABLE_CREATOR_GROUP": True}):
+        with mock.patch.dict('django.conf.settings.FEATURES', {"ENABLE_CREATOR_GROUP": True}):
             self.user.is_staff = False
             self.user.save()
             self.assert_course_permission_denied()
 
     def test_create_course_with_course_creator(self):
         """Test new course creation -- use course creator group"""
-        with mock.patch.dict('django.conf.settings.MITX_FEATURES', {"ENABLE_CREATOR_GROUP": True}):
+        with mock.patch.dict('django.conf.settings.FEATURES', {"ENABLE_CREATOR_GROUP": True}):
             add_user_to_creator_group(self.user, self.user)
             self.assert_created_course()
 
@@ -1661,14 +1659,7 @@ class ContentStoreTest(ModuleStoreTestCase):
         test_get_html('settings/details')
         test_get_html('settings/grading')
         test_get_html('settings/advanced')
-
-        # textbook index
-        resp = self.client.get_html(reverse('textbook_index',
-                                            kwargs={'org': loc.org,
-                                                    'course': loc.course,
-                                                    'name': loc.name}))
-        self.assertEqual(resp.status_code, 200)
-        _test_no_locations(self, resp)
+        test_get_html('textbooks')
 
         # go look at a subsection page
         subsection_location = loc.replace(category='sequential', name='test_sequence')
@@ -1682,8 +1673,7 @@ class ContentStoreTest(ModuleStoreTestCase):
         unit_locator = loc_mapper().translate_location(loc.course_id, unit_location, False, True)
         resp = self.client.get_html(unit_locator.url_reverse('unit'))
         self.assertEqual(resp.status_code, 200)
-        # TODO: uncomment when video transcripts no longer require IDs.
-        # _test_no_locations(self, resp)
+        _test_no_locations(self, resp)
 
         def delete_item(category, name):
             """ Helper method for testing the deletion of an xblock item. """

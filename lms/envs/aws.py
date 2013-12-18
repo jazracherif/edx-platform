@@ -44,7 +44,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
 # Enable Berkeley forums
-MITX_FEATURES['ENABLE_DISCUSSION_SERVICE'] = True
+FEATURES['ENABLE_DISCUSSION_SERVICE'] = True
 
 # IMPORTANT: With this enabled, the server must always be behind a proxy that
 # strips the header HTTP_X_FORWARDED_PROTO from client requests. Otherwise,
@@ -124,7 +124,9 @@ if STATIC_ROOT_BASE:
 STATIC_URL_BASE = ENV_TOKENS.get('STATIC_URL_BASE', None)
 if STATIC_URL_BASE:
     # collectstatic will fail if STATIC_URL is a unicode string
-    STATIC_URL = STATIC_URL_BASE.encode('ascii') + "/"
+    STATIC_URL = STATIC_URL_BASE.encode('ascii')
+    if not STATIC_URL.endswith("/"):
+        STATIC_URL += "/"
 
 PLATFORM_NAME = ENV_TOKENS.get('PLATFORM_NAME', PLATFORM_NAME)
 # For displaying on the receipt. At Stanford PLATFORM_NAME != MERCHANT_NAME, but PLATFORM_NAME is a fine default
@@ -210,8 +212,9 @@ USE_I18N = ENV_TOKENS.get('USE_I18N', USE_I18N)
 for app in ENV_TOKENS.get('ADDL_INSTALLED_APPS', []):
     INSTALLED_APPS += (app,)
 
-for feature, value in ENV_TOKENS.get('MITX_FEATURES', {}).items():
-    MITX_FEATURES[feature] = value
+ENV_FEATURES = ENV_TOKENS.get('FEATURES', ENV_TOKENS.get('MITX_FEATURES', {}))
+for feature, value in ENV_FEATURES.items():
+    FEATURES[feature] = value
 
 WIKI_ENABLED = ENV_TOKENS.get('WIKI_ENABLED', WIKI_ENABLED)
 local_loglevel = ENV_TOKENS.get('LOCAL_LOGLEVEL', 'INFO')
@@ -258,7 +261,7 @@ with open(CONFIG_ROOT / CONFIG_PREFIX + "auth.json") as auth_file:
 # If Segment.io key specified, load it and enable Segment.io if the feature flag is set
 SEGMENT_IO_LMS_KEY = AUTH_TOKENS.get('SEGMENT_IO_LMS_KEY')
 if SEGMENT_IO_LMS_KEY:
-    MITX_FEATURES['SEGMENT_IO_LMS'] = ENV_TOKENS.get('SEGMENT_IO_LMS', False)
+    FEATURES['SEGMENT_IO_LMS'] = ENV_TOKENS.get('SEGMENT_IO_LMS', False)
 
 CC_PROCESSOR = AUTH_TOKENS.get('CC_PROCESSOR', CC_PROCESSOR)
 

@@ -5,6 +5,22 @@ These are notable changes in edx-platform.  This is a rolling list of changes,
 in roughly chronological order, most recent first.  Add your entries at or near
 the top.  Include a label indicating the component affected.
 
+Common: Switch from mitx.db to edx.db for sqlite databases. This will effectively
+  reset state for local instances of the code, unless you manually rename your
+  mitx.db file to edx.db.
+
+Blades: Video Transcripts: Fix clear and download buttons. BLD-438.
+
+Common: Switch over from MITX_FEATURES to just FEATURES. To override items in
+  the FEATURES dict, the environment variable you must set to do so is also
+  now called FEATURES instead of MITX_FEATURES.
+
+LMS: Change the forum role granted to global staff on enrollment in a
+course. Previously, staff were given the Moderator role; now, they are
+given the Student role.
+
+Blades: Fix Numerical input to support mathematical operations. BLD-525.
+
 Blades: Improve calculator's tooltip accessibility. Add possibility to navigate
   through the hints via arrow keys. BLD-533.
 
@@ -26,6 +42,8 @@ Blades: Enabled several Video Jasmine tests. BLD-463.
 Studio: Continued modification of Studio pages to follow a RESTful framework.
 includes Settings pages, edit page for Subsection and Unit, and interfaces
 for updating xblocks (xmodules) and getting their editing HTML.
+
+LMS: Improve accessibility of inline discussions in courseware.
 
 Blades: Put 2nd "Hide output" button at top of test box & increase text size for
 code response questions. BLD-126.
