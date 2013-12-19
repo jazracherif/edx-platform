@@ -13,6 +13,7 @@ ASSUMPTIONS: modules have unique IDs, even across different module_types
 
 """
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -62,13 +63,17 @@ class StudentModule(models.Model):
         """
         Return all model instances that correspond to problems that have been
         submitted for a given course. So module_type='problem' and a non-null
-        grade.
+        grade. Use a read replica if one exists for this environment.
         """
-        return cls.objects.filter(
+        queryset = cls.objects.filter(
             course_id=course_id,
             module_type='problem',
             grade__isnull=False
         )
+        if "read_replica" in settings.DATABASES:
+            return queryset.using("read_replica")
+        else:
+            return queryset
 
     def __repr__(self):
         return 'StudentModule<%r>' % ({

@@ -103,7 +103,7 @@ def answer_distributions(request, course_id):
     # Iterate through all problems submitted for this course in no particular
     # order, and build up our answer_counts dict that we will eventually return
     answer_counts = defaultdict(lambda: defaultdict(int))
-    for module in StudentModule.all_submitted_problems_for(course_id):
+    for module in StudentModule.all_submitted_problems_read_only(course_id):
         try:
             state_dict = json.loads(module.state)
             raw_answers = state_dict.get("student_answers", {})
