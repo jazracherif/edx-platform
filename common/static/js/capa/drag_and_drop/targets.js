@@ -1,5 +1,5 @@
 (function (requirejs, require, define) {
-define(['js/capa/drag_and_drop/logme'], function (logme) {
+define(['logme'], function (logme) {
     return {
         'initializeBaseTargets': initializeBaseTargets,
         'initializeTargetField': initializeTargetField,

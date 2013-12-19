@@ -1,5 +1,5 @@
 (function (requirejs, require, define) {
-define(['js/capa/drag_and_drop/logme', 'js/capa/drag_and_drop/draggable_events', 'js/capa/drag_and_drop/draggable_logic'], function (logme, draggableEvents, draggableLogic) {
+define(['logme', 'js/capa/drag_and_drop/draggable_events', 'js/capa/drag_and_drop/draggable_logic'], function (logme, draggableEvents, draggableLogic) {
     return {
         'init': init
     };
