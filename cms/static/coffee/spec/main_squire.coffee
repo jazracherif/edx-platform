@@ -28,6 +28,7 @@ requirejs.config({
         "xmodule": "xmodule_js/src/xmodule",
         "xblock": "xmodule_js/common_static/coffee/src/xblock",
         "utility": "xmodule_js/common_static/js/src/utility",
+        "logme": "xmodule_js/common_static/js/src/logme",
         "sinon": "xmodule_js/common_static/js/vendor/sinon-1.7.1",
         "squire": "xmodule_js/common_static/js/vendor/Squire",
         "jasmine-stealth": "xmodule_js/common_static/js/vendor/jasmine-stealth",
