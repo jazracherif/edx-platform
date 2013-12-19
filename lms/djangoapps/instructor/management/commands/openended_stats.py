@@ -1,12 +1,14 @@
+from django.core.management.base import BaseCommand
+
 from xmodule.open_ended_grading_classes.openendedchild import OpenEndedChild
 from courseware.models import StudentModule
 from student.models import anonymous_id_for_user
 from ...utils import get_descriptor, get_module_for_student, get_enrolled_students, create_csv_from_student_anonymous_ids, create_json_of_student_data
-from django.core.management.base import BaseCommand
-
 
 class Command(BaseCommand):
-    """Admin command for open ended problems."""
+    """
+    Command to get statistics about open ended problems.
+    """
 
     help = "Usage: openended_stats <course_id> <problem_location> \n"
     output_transaction = True
@@ -59,13 +61,13 @@ class Command(BaseCommand):
 
             module = get_module_for_student(student, course_id, location)
             if module is None:
-                print "WARNING: No state found."
+                print "WARNING: No state found for student {0}:".format(student)
                 students_with_invalid_state.append(student)
                 continue
 
             latest_task = module._xmodule.child_module.get_current_task()
             if latest_task is None:
-                print "WARNING: No state found."
+                print "WARNING: No state found for student: {0}".format(student)
                 students_with_invalid_state.append(student)
                 continue
 
@@ -77,20 +79,18 @@ class Command(BaseCommand):
             if latest_task.child_state == OpenEndedChild.ASSESSING:
                 students_with_submissions.append(student)
 
-        #Create a csv of student anonymous ids.
-        create_csv_from_student_anonymous_ids([anonymous_id_for_user(student, course_id) for student in students_with_saved_answers], "students_with_saved_answers")
-        create_csv_from_student_anonymous_ids([anonymous_id_for_user(student, course_id) for student in students_with_submissions], "students_with_submissions")
-
         student_assessing_dict = dict()
         student_assessing_dict["students_with_submissions"] = [{"student_id": student.id,
                                                                 "username": student.username,
-                                                                "anonymous_id": anonymous_id_for_user(student, course_id)
+                                                                "anonymous_id": anonymous_id_for_user(student, '')
                                                                } for student in students_with_submissions]
         #Create a json of student data.
         create_json_of_student_data(student_assessing_dict, 'students_with_submissions')
 
         print "Errors for {0} students.".format(len(students_with_invalid_state))
         print "----------------------------------"
+        print "Course:".format(course_id)
+        print "Location:".format(location)
         print "Viewed the problem: {0}".format(stats[OpenEndedChild.INITIAL] - len(students_with_saved_answers))
         print "Saved answers: {0}".format(len(students_with_saved_answers))
         print "Submitted but have not received grades: {0}".format(stats[OpenEndedChild.ASSESSING])
